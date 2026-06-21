@@ -1,0 +1,6 @@
+{
+  "name": "Pistons Roster Architect",
+  "description": "An interactive Detroit Pistons roster builder, draft simulator, and free agency pool simulator with dynamic checkups of team needs and advanced player stats.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
