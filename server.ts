@@ -1,9 +1,11 @@
 import express from "express";
 import path from "path";
 import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { createServer as createViteServer } from "vite";
 import { currentRosterData, upcomingDraftPicks, draftProspectsData, freeAgentsData } from "./src/data";
+import { calculateLineupSynergy, getPlayerArchetypes } from "./src/utils/chemistry";
+import { validateCBAPayroll, CBA_LIMITS } from "./src/utils/finance";
 
 dotenv.config();
 
@@ -46,12 +48,51 @@ app.post("/api/chat", async (req, res) => {
       const draftedProspects = draftProspectsData.filter(p => prospectIds.includes(p.id));
       const signedFA = freeAgentsData.filter(p => freeAgentIds.includes(p.id));
 
+      const activePlayers = [
+        ...currentRosterData.filter(p => !excludedIds.includes(p.id)),
+        ...draftedProspects,
+        ...signedFA
+      ];
+
+      const chemistryAnalysis = calculateLineupSynergy(activePlayers);
+      const cbaAnalysis = validateCBAPayroll(activePlayers, signedFA, draftedProspects, []);
+
       sandboxContext = `
 ACTIVE ROSTER SANDBOX SIMULATION CONTEXT:
 The user has made the following sandbox adjustments to the Detroit Pistons Roster:
 - EXCLUDED/RELEASED PLAYERS (removed from current squad): ${excludedPlayers.length > 0 ? excludedPlayers.map(p => `${p.name} (${p.position})`).join(", ") : "None"}
 - SIGNED DRAFT PROSPECTS (2026 Class additions): ${draftedProspects.length > 0 ? draftedProspects.map(p => `${p.name} (${p.position})`).join(", ") : "None"}
 - SIGNED FREE AGENTS: ${signedFA.length > 0 ? signedFA.map(p => `${p.name} (${p.position})`).join(", ") : "None"}
+
+--- RIGOROUS CBA FINANCIAL & LUXURY TAX MODELING ---
+Pistons Financial Sheet Summary for 2026-27:
+* Active Team Payroll: $${cbaAnalysis.payroll}M (Salary Cap: $${CBA_LIMITS.salaryCap}M | Luxury Tax Line: $${CBA_LIMITS.luxuryTax}M)
+* Remaining Cap Space: $${cbaAnalysis.capSpace}M
+* Apron Status: ${cbaAnalysis.apronStatus} (First Apron Limit: $${CBA_LIMITS.firstApron}M | Second Apron Limit: $${CBA_LIMITS.secondApron}M)
+* Luxury Tax Overage/Obligations: $${cbaAnalysis.luxuryTaxOverage}M
+* Exceptions Utilized: ${cbaAnalysis.exceptionsTriggered.length > 0 ? cbaAnalysis.exceptionsTriggered.join(", ") : "None"}
+* Hard Cap Triggered: ${cbaAnalysis.hardCappedAt}
+* Financial Legality Status: ${cbaAnalysis.isLegal ? "FULLY LEGAL AND AUTHORIZED UNDER CBA RULES" : "ILLEGAL OR TRIGGERED WARNINGS"}
+* Financial Warnings & Constraints:
+${cbaAnalysis.warnings.length > 0 ? cbaAnalysis.warnings.map(w => `  - ${w}`).join("\n") : "  - No payroll or roster construction constraints triggered!"}
+
+--- REAL-TIME ON-COURT SYNERGY & CHEMISTRY METRICS ---
+These metrics are calculated dynamically by our basketball analytics engine combining individual player DARKO/EPM plus-minus ratings with on-court synergy combinations:
+* Simulated Net Court Rating: ${chemistryAnalysis.netRating > 0 ? "+" : ""}${chemistryAnalysis.netRating} (Offensive Rating: ${chemistryAnalysis.offensiveRating} | Defensive Rating: ${chemistryAnalysis.defensiveRating})
+* Simulated Spacing & Gravity Rating: ${chemistryAnalysis.spacingRating}/10
+* Active Synergy Boosts: ${chemistryAnalysis.synergyBoosts.length > 0 ? chemistryAnalysis.synergyBoosts.join(" | ") : "None"}
+* Active Synergy Penalties: ${chemistryAnalysis.synergyPenalties.length > 0 ? chemistryAnalysis.synergyPenalties.join(" | ") : "None"}
+
+--- SYSTEM-WIDE SKILL DEFICIENCY ALERTS ---
+These warnings have been automatically flagged as potential roster vulnerabilities:
+${chemistryAnalysis.alerts.length > 0 ? chemistryAnalysis.alerts.map(a => `- [${a.severity.toUpperCase()}] ${a.title}: ${a.description} (Solution: ${a.solution})`).join("\n") : "None (All core roles fully covered!)"}
+
+--- PLAYER ROSTER BASKETBALL ARCHETYPES ---
+Each player has been classified into a functional offensive and defensive style:
+${activePlayers.map(p => {
+  const arch = getPlayerArchetypes(p);
+  return `- ${p.name}: Offense [${arch.offensive}], Defense [${arch.defensive}] (EPM: ${p.epm ?? 0}, DARKO: ${p.darko ?? 0})`;
+}).join("\n")}
 `;
     }
 
@@ -69,6 +110,15 @@ Your terminal is integrated into the "Pistons Roster Architect" platform, meanin
    - SECONDARY PLAYMAKING: Does it take some handler load off Cade Cunningham (e.g., adding Darryn Peterson)?
    - SIZE / POWER FRONTCOURT: Does it reinforce our post bulk (e.g. adding Cameron Boozer or physical bigs)?
 4. **Be highly concise and human**: Prefer clean, scannable responses with bold key terms, short paragraphs, and bullet points where useful. Avoid generic corporate speak. Be professional, supportive, and extremely insightful!
+
+### INTERACTIVE RECOMMENDED SCENARIOS:
+When you want to recommend a specific, multi-step strategic roster shift (e.g., releasing certain players, drafting a prospect, signing a free agent to unlock space or defense), populate the "recommendedScenario" field in the output JSON.
+Ensure you use the EXACT IDs from the rosters provided below:
+- Existing Pistons players (for releasingPlayerIds): e.g., "tobias-harris", "isaiah-joe", "tim-hardaway-jr", "malik-beasley", "paul-reed", "jalen-duren" etc.
+- Draft prospects (for draftProspectIds): e.g., "prospect-aj-dybantsa", "prospect-cam-boozer", "prospect-ebuka-okorie", "prospect-darryn-peterson", "prospect-nate-ament", "prospect-caleb-wilson", "prospect-xavion-staton" etc.
+- Free agents (for freeAgentIds): e.g., "fa-myles-turner", "fa-brandon-ingram", "fa-jimmy-butler", "fa-fred-vanvleet", "fa-naz-reid", "fa-bobby-portis" etc.
+
+Only provide a "recommendedScenario" if you are recommending a specific set of moves. If you are just answering a general question or doing general analysis, do not include a "recommendedScenario" (set it to null).
 
 ### CURRENT DETROIT PISTONS ROSTER:
 ${JSON.stringify(currentRosterData, null, 2)}
@@ -96,10 +146,62 @@ ${sandboxContext}
       config: {
         systemInstruction,
         temperature: 0.7,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            text: {
+              type: Type.STRING,
+              description: "The primary conversational markdown response. Respond to the user's questions, analyze sandbox adjustments, and offer expert strategic front-office planning with Pistons DNA."
+            },
+            recommendedScenario: {
+              type: Type.OBJECT,
+              description: "An optional multi-step roster scenario matching the strategic advice. Provide this ONLY when you recommend concrete additions/subtractions to the active roster so the user can apply them with one click.",
+              properties: {
+                title: {
+                  type: Type.STRING,
+                  description: "A short, actionable title for this scenario, e.g., 'Apply AI's Win-Now Spacing Pivot'."
+                },
+                description: {
+                  type: Type.STRING,
+                  description: "A concise summary of what this scenario does (e.g., releases Tobias Harris, drafts AJ Dybantsa, and signs Myles Turner to unlock spacing)."
+                },
+                releasingPlayerIds: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "The exact player IDs to exclude/release from the current Pistons roster (e.g., ['tobias-harris'])."
+                },
+                draftProspectIds: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "The exact draft prospect IDs to select (e.g., ['prospect-aj-dybantsa'])."
+                },
+                freeAgentIds: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "The exact free agent IDs to sign (e.g., ['fa-myles-turner'])."
+                }
+              },
+              required: ["title", "description", "releasingPlayerIds", "draftProspectIds", "freeAgentIds"]
+            }
+          },
+          required: ["text"]
+        }
       },
     });
 
-    res.json({ text: response.text });
+    let data;
+    try {
+      data = JSON.parse(response.text || "{}");
+    } catch (e) {
+      console.error("Failed to parse Gemini JSON output:", response.text);
+      data = { text: response.text || "I was unable to structure my recommendation, but here is my analysis." };
+    }
+
+    res.json({
+      text: data.text,
+      recommendedScenario: data.recommendedScenario || null
+    });
   } catch (error: any) {
     console.error("Gemini chat error:", error);
     res.status(500).json({ error: error.message || "An error occurred during your chat request." });

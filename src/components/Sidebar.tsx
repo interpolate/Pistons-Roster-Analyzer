@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, DraftingCompass, Briefcase, Zap, AlertCircle, Sparkles } from "lucide-react";
+import { Users, DraftingCompass, Briefcase, Zap, AlertCircle, Sparkles, ArrowLeftRight, LayoutGrid, Coins } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -10,8 +10,11 @@ interface SidebarProps {
 export default function Sidebar({ activeTab, setActiveTab, simulatedCount }: SidebarProps) {
   const menuItems = [
     { id: "roster", name: "Current Roster", icon: Users, desc: "Pistons Active 2025-26 Squad" },
-    { id: "draft", name: "Draft Board", icon: Users, desc: "Draft Picks & Scouting Reports" }, // Will make icon look distinct
+    { id: "depth", name: "Depth Chart", icon: LayoutGrid, desc: "Starting 5 Lineup Sandbox" },
+    { id: "finance", name: "Cap Forecaster", icon: Coins, desc: "Multi-Year Salary Projections" },
+    { id: "draft", name: "Draft Board", icon: DraftingCompass, desc: "Draft Picks & Scouting Reports" },
     { id: "freeagency", name: "Free Agency Pool", icon: Briefcase, desc: "Targets & Cap Space Impact" },
+    { id: "trade", name: "Trade Machine", icon: ArrowLeftRight, desc: "CBA-Compliant Trade Machine" },
     { id: "simulator", name: "Roster Simulator", icon: Zap, desc: "Team Needs Sandbox Simulator" },
   ];
 
@@ -64,14 +67,7 @@ export default function Sidebar({ activeTab, setActiveTab, simulatedCount }: Sid
                 <div className={`p-1.5 rounded-lg transition-colors ${
                   isActive ? "bg-blue-500/50" : "bg-slate-900 group-hover:bg-slate-800"
                 }`}>
-                  {item.id === "draft" ? (
-                    // Custom rendering for Draft board to use a clipboard/drafting icon look
-                    <svg className="w-5 h-5 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  ) : (
-                    <IconComponent className="w-5 h-5 text-current" />
-                  )}
+                  <IconComponent className="w-5 h-5 text-current" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm flex items-center justify-between">
@@ -119,21 +115,15 @@ export default function Sidebar({ activeTab, setActiveTab, simulatedCount }: Sid
               }`}
             >
               <div className="relative">
-                {item.id === "draft" ? (
-                  <svg className="w-5.5 h-5.5 text-current transition-transform duration-250 group-active:scale-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.1">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                ) : (
-                  <IconComponent className="w-5.5 h-5.5 text-current transition-transform duration-250 group-active:scale-90" />
-                )}
+                <IconComponent className="w-5.5 h-5.5 text-current transition-transform duration-250 group-active:scale-90" />
                 {item.id === "simulator" && simulatedCount > 0 && (
                   <span className="absolute -top-1.5 -right-2.5 bg-red-500 text-white text-[9px] font-black px-1 py-0.5 rounded-full leading-none animate-bounce">
                     {simulatedCount}
                   </span>
                 )}
               </div>
-              <span className="text-[9px] font-bold mt-1 tracking-tight leading-none uppercase select-none font-mono">
-                {item.id === "roster" ? "Squad" : item.id === "draft" ? "Drafts" : item.id === "freeagency" ? "Agents" : "Sandbox"}
+              <span className="text-[8px] sm:text-[9px] font-bold mt-1 tracking-tight leading-none uppercase select-none font-mono">
+                {item.id === "roster" ? "Squad" : item.id === "depth" ? "Depth" : item.id === "finance" ? "Cap" : item.id === "draft" ? "Drafts" : item.id === "freeagency" ? "Agents" : item.id === "trade" ? "Trades" : "Simulator"}
               </span>
               {isActive && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-red-500 rounded-full" />

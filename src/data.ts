@@ -240,6 +240,54 @@ export const currentRosterData: Player[] = [
     darko: -0.8,
     lebron: -1.2,
     epm: -1.0
+  },
+  {
+    id: "ebuka-okorie",
+    name: "Ebuka Okorie",
+    number: "#15",
+    position: "G",
+    age: 19,
+    height: "6'4\"",
+    weight: "195 lbs",
+    experience: "Rookie",
+    ppg: 16.2,
+    rpg: 4.2,
+    apg: 5.8,
+    per: 21.4,
+    ts: 58.8,
+    impactGrade: "A-",
+    strengths: ["Lethal Outside Shooting", "Elite Pick-and-Roll Navigation", "Playmaking & Court Vision", "Active Perimeter Defense"],
+    weaknesses: ["Turnover Discipline under heavy pressure", "Mid-range shot consistency", "Off-ball screen navigation"],
+    analysis: "Drafted from Stanford University, Ebuka Okorie is a dynamic, highly polished guard who provides elite three-point gravity and superb playmaking. Okorie's high basketball IQ, exceptional pick-and-roll navigation, and creative passing offer Detroit a secondary initiator to operate alongside Cade Cunningham. He is a modern combo guard who stretches defenses with his pull-up and catch-and-shoot abilities while remaining an active, high-motor perimeter defender.",
+    howToOptimize: "Deploy Okorie in dual-handler lineups alongside Cade Cunningham to relieve initiation duties off Cade and unlock dynamic off-ball scoring. Use Okorie in high-frequency pick-and-rolls, leveraging his deep range pull-up threat and passing gravity to create open lanes for Jalen Duren inside or shooters on the wings.",
+    salary: "$6.2M",
+    darko: 1.5,
+    lebron: 1.4,
+    epm: 1.6
+  },
+  {
+    id: "isaiah-joe",
+    name: "Isaiah Joe",
+    number: "#11",
+    position: "SG",
+    age: 26,
+    height: "6'3\"",
+    weight: "165 lbs",
+    experience: "6 Years",
+    ppg: 8.2,
+    rpg: 1.5,
+    apg: 1.3,
+    per: 12.5,
+    ts: 59.8,
+    impactGrade: "B-",
+    strengths: ["Elite Catch-and-Shoot 3PT", "Extreme Spacing Gravity", "Dynamic Off-Ball Relocation", "Active Help Defense"],
+    weaknesses: ["Physical Bulk", "On-Ball Shot Creation", "Finishing Over Length"],
+    analysis: "Isaiah Joe is one of the premier catch-and-shoot marksmen in the NBA. His off-ball movement and lightning-fast release force defensive coverage shifts, which creates spacious driving lanes for primary playmakers. Defensively, he is thin but incredibly smart, positioning himself well to take charges and play weakside help lanes.",
+    howToOptimize: "Deploy him in high-frequency floppy actions, elevator screen structures, and hand-off sets with Cade Cunningham. His gravitational pull must be leveraged to clear out the paint for Cunningham and Jaden Ivey's penetrations.",
+    salary: "$12.0M",
+    darko: 1.2,
+    lebron: 0.8,
+    epm: 0.9
   }
 ];
 
@@ -275,6 +323,23 @@ export const upcomingDraftPicks: DraftPick[] = [
 ];
 
 export const draftProspectsData: DraftProspect[] = [
+  {
+    id: "prospect-ebuka-okorie",
+    name: "Ebuka Okorie",
+    position: "PG / SG",
+    collegeOrTeam: "Stanford (Drafted)",
+    age: 19,
+    height: "6'4\"",
+    scoutingGrade: "97 (Elite)",
+    projectedRange: "No. 1 Pick (Drafted by Detroit)",
+    projectedPpg: 16.2,
+    projectedRpg: 4.2,
+    projectedApg: 5.8,
+    strengths: ["Lethal Outside Shooting", "Elite Pick-and-Roll Navigation", "Playmaking & Court Vision", "Active Perimeter Defense"],
+    weaknesses: ["Turnover Discipline under heavy pressure", "Mid-range shot consistency", "Off-ball screen navigation"],
+    fitAnalysis: "Ebuka Okorie is an ideal fit for the young Pistons, giving them a second elite ball-handler and premier floor-spacer from Stanford. He can play alongside Cade Cunningham or run the bench offense, instantly solving Detroit's secondary playmaking needs and boosting their three-point spacing.",
+    primaryBenefit: "playmaking"
+  },
   {
     id: "prospect-aj-dybantsa",
     name: "AJ Dybantsa",

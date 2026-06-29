@@ -4,15 +4,28 @@ import { Search, SlidersHorizontal, ArrowUpDown, X, Star, BarChart3, TrendingUp,
 
 interface RosterViewProps {
   roster: Player[];
+  acquiredPlayers?: Player[];
+  tradedAwayPlayerIds?: string[];
   onOpenPlayerDetails?: (player: Player) => void;
 }
 
-export default function RosterView({ roster, onOpenPlayerDetails }: RosterViewProps) {
+export default function RosterView({ 
+  roster, 
+  acquiredPlayers = [], 
+  tradedAwayPlayerIds = [], 
+  onOpenPlayerDetails 
+}: RosterViewProps) {
   const [search, setSearch] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<string>("All");
   const [sortBy, setSortBy] = useState<keyof Player | "">("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [activePlayer, setActivePlayer] = useState<Player | null>(null);
+
+  // Compute a unified roster derived from simulated trades
+  const combinedRoster = React.useMemo(() => {
+    const pistonsBase = roster.filter(p => !tradedAwayPlayerIds.includes(p.id));
+    return [...pistonsBase, ...acquiredPlayers];
+  }, [roster, acquiredPlayers, tradedAwayPlayerIds]);
 
   // Filter positions
   const positions = ["All", "PG", "SG", "SF", "PF", "C"];
@@ -26,7 +39,7 @@ export default function RosterView({ roster, onOpenPlayerDetails }: RosterViewPr
     }
   };
 
-  const sortedAndFilteredPlayers = roster
+  const sortedAndFilteredPlayers = combinedRoster
     .filter((player) => {
       const matchesSearch = player.name.toLowerCase().includes(search.toLowerCase()) ||
                             player.position.toLowerCase().includes(search.toLowerCase());
@@ -48,10 +61,10 @@ export default function RosterView({ roster, onOpenPlayerDetails }: RosterViewPr
     });
 
   // Calculate some squad averages
-  const avgPpg = (roster.reduce((sum, p) => sum + p.ppg, 0) / roster.length).toFixed(1);
-  const avgRpg = (roster.reduce((sum, p) => sum + p.rpg, 0) / roster.length).toFixed(1);
-  const avgApg = (roster.reduce((sum, p) => sum + p.apg, 0) / roster.length).toFixed(1);
-  const avgPer = (roster.reduce((sum, p) => sum + p.per, 0) / roster.length).toFixed(1);
+  const avgPpg = (combinedRoster.reduce((sum, p) => sum + p.ppg, 0) / (combinedRoster.length || 1)).toFixed(1);
+  const avgRpg = (combinedRoster.reduce((sum, p) => sum + p.rpg, 0) / (combinedRoster.length || 1)).toFixed(1);
+  const avgApg = (combinedRoster.reduce((sum, p) => sum + p.apg, 0) / (combinedRoster.length || 1)).toFixed(1);
+  const avgPer = (combinedRoster.reduce((sum, p) => sum + p.per, 0) / (combinedRoster.length || 1)).toFixed(1);
 
   const getGradeColor = (grade: string) => {
     if (grade.startsWith("A")) return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
@@ -127,7 +140,7 @@ export default function RosterView({ roster, onOpenPlayerDetails }: RosterViewPr
         </div>
 
         <div className="text-xs text-slate-500 font-mono">
-          Showing {sortedAndFilteredPlayers.length} of {roster.length} Players
+          Showing {sortedAndFilteredPlayers.length} of {combinedRoster.length} Players
         </div>
       </div>
 
